@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	  <meta charset="UTF-8">
+		<style>
+			body {
+			font-size:12px;
+			font-family:sans-serif;
+			}
+			#chartdiv {
+			width: 100%;
+			height: 460px;
+			}
+			#table_div {
+			margin-left:10px;
+			margin-top:10px;
+			height:600px;
+			}
+			.darkborder .td {
+			border-top:1px solid #A6B9C2;
+			border-bottom: 1px solid #A6B9C2;
+			padding: 3 6 !important;
+			background-color:#fff !important;
+			}
+			.td {
+			border-bottom: 1px solid #d9d9d9;
+			border-left:0 !important;
+			border-right:0 !important;
+			padding: 1 6 !important;
+			font-size: 12px;
+			font-family:sans-serif;
+			text-align:left;
+			font-weight: normal;
+			}
+			.td:first-of-type {
+			width: 65px;
+			padding-left:3 !important;
+			}
+			.selected {
+			background-color:#F4CCCC !important;
+			}
+			.hover {
+			background-color:#d9d2e9 !important;
+			}
+		</style>
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script src="https://www.amcharts.com/lib/4/core.js"></script>
+		<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+		<!-- <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script> -->
+		<script type="text/javascript">
+			// 컬러팔레트
+			var fixed = "#F4CCCC";
+			var actor_fixed = "#fff2cc";
+			var actor_unlikely = "#D9EAD3";
+			var actor_notfixed ="#cfe2f3";
+			
+			am4core.ready(function() {
+				google.charts.load("current", {packages:["timeline"]});
+				google.charts.setOnLoadCallback(queryData1);
+			});
+			
+			function queryData1() {
+				var queryString = encodeURIComponent("SELECT N, A, D, O, C, P, Q, E, F, G, M WHERE N is not null");
+				// 요일 방송사, 방송사, 제목, 텍스트, 시작일, 종영일, 종영일차주, 감독, 작가, 배우, 상태
+				
+				var query = new google.visualization.Query(
+				"https://docs.google.com/spreadsheets/d/1FP6j_HaFuBDMUQGrI1qDKiVUi-x4A1-Q-U9OVSZdIRQ/gviz/tq?sheet=list&headers=1&tq=" + queryString);
+				query.send(drawChart);
+			}
+			
+			function drawChart(response) {
+				if (response.isError()) {
+					alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+					return;
+				}
+				// 오늘 0시
+				var today = new Date();
+				today.setHours(0,0,0,0);
+				
+				var dataString = JSON.stringify(response.getDataTable());
+				var dataTable = JSON.parse(dataString.replace(/\\/g,"").replace(/\\/g,"").replace("\"","").replace("}]}]}\"","}]}]}"));
+				
+				var j, k;
+				var array = [
+				{"요일 방송사":"2 KBS","방송사":"KBS"},{"요일 방송사":"2 MBC","방송사":"MBC"},{"요일 방송사":"2 SBS","방송사":"SBS"},{"요일 방송사":"2 tvN","방송사":"tvN"},{"요일 방송사":"2 JTBC","방송사":"JTBC"},
+				{"요일 방송사":"4 KBS","방송사":"KBS"},{"요일 방송사":"4 MBC","방송사":"MBC"},{"요일 방송사":"4 SBS","방송사":"SBS"},{"요일 방송사":"4 tvN","방송사":"tvN"},{"요일 방송사":"4 JTBC","방송사":"JTBC"},{"요일 방송사":"4 OCN","방송사":"OCN"},
+				{"요일 방송사":"6 KBS","방송사":"KBS"},{"요일 방송사":"6 SBS","방송사":"SBS"},{"요일 방송사":"6 JTBC","방송사":"JTBC"},
+				{"요일 방송사":"7 tvN","방송사":"tvN"},{"요일 방송사":"7 OCN","방송사":"OCN"}
+				];
+				
+				for (j in dataTable.rows) {
+					var json = {};
+					for (k in dataTable.cols) {
+						if (!dataTable.rows[j].c[k]) {
+							json[dataTable.cols[k].label] = "";
+						}
+						else if (dataTable.rows[j].c[k].f) {
+							json[dataTable.cols[k].label] = dataTable.rows[j].c[k].f;
+						}
+						else {
+							json[dataTable.cols[k].label] = dataTable.rows[j].c[k].v;
+						}
+					}
+					array.push(json);
+				}
+				
+				for (j in array) {
+					if (array[j]["상태"]=="확정") {
+						array[j].color = am4core.color(fixed);
+					}
+					else  if (array[j]["배우"]=="x") {
+						array[j].color = am4core.color(actor_unlikely);
+					}
+					else if (array[j]["배우"]) {
+						array[j].color = am4core.color(actor_fixed);
+					}
+					else {
+						array[j].color = am4core.color(actor_notfixed);
+					}
+				}
+				
+				var chart = am4core.create("chartdiv", am4charts.XYChart);
+				chart.data = array;
+				
+				chart.paddingLeft = 30;
+				chart.dateFormatter.inputDateFormat = "yy/MM/dd";
+				
+				var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+				categoryAxis.dataFields.category = "요일 방송사";
+				categoryAxis.renderer.grid.template.location = 0;
+				categoryAxis.renderer.inversed = true;
+				categoryAxis.renderer.minGridDistance = 5;
+				categoryAxis.fontSize = 10;
+				categoryAxis.dataItems.template.text = "{방송사}";
+				
+				var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+				dateAxis.renderer.minGridDistance = 17;
+				dateAxis.renderer.grid.template.strokeOpacity = 0;
+				dateAxis.baseInterval = { timeUnit: "week", count: 1 };
+				dateAxis.gridIntervals.setAll([
+				<!-- {  timeUnit: "day", count: 1 },  -->
+				{ timeUnit: "week", count: 1 }, 
+				{ timeUnit: "week", count: 2 }, 
+				{ timeUnit: "month", count: 1 }
+				]);
+				<!-- dateAxis.dateFormats.setKey("day", "d"); -->
+				dateAxis.dateFormats.setKey("week", "d");
+				dateAxis.dateFormats.setKey("month", "MMM");
+				<!-- dateAxis.periodChangeDateFormats.setKey("day", "MMM"); -->
+				dateAxis.periodChangeDateFormats.setKey("week", "MMM");
+				dateAxis.periodChangeDateFormats.setKey("month", "yyyy");
+				dateAxis.fontSize = 10;
+				dateAxis.renderer.labels.template.location = 0.0001;
+				
+				var now = dateAxis.axisRanges.create();
+				now.date = today;
+				now.grid.disabled = true;
+				now.bullet = new am4core.Triangle();
+				now.bullet.width = 10;
+				now.bullet.height = 7;
+				now.bullet.fill = am4core.color("#c00");
+				now.bullet.horizontalCenter = "middle";
+				
+				var series1 = chart.series.push(new am4charts.ColumnSeries());
+				// series1.data = array;
+				series1.columns.template.height = am4core.percent(80);
+				series1.columns.template.tooltipText = "[bold]{제목}[/]\n{감독}/{작가}\n{배우} \n{시작일.formatDate('yyyy MMM dd')} - {종영일.formatDate('yyyy MMM dd')}";
+				series1.columns.template.fillOpacity = 1;
+				series1.columns.template.strokeOpacity = 1;
+				series1.columns.template.propertyFields.fill = "color"; // get color from data
+				series1.columns.template.stroke = am4core.color("#fff");
+				series1.columns.template.column.cornerRadius(5,5,5,5);
+				
+				series1.dataFields.openDateX = "시작일";
+				series1.dataFields.dateX = "종영일차주";
+				series1.dataFields.categoryY = "요일 방송사";
+				
+				series1.tooltip.background.cornerRadius = 20;
+				series1.tooltip.getFillFromObject = false;
+				series1.tooltip.label.fill = am4core.color("#000");
+				series1.tooltip.background.fill = am4core.color("#fff");
+				series1.tooltip.background.stroke = am4core.color("#ccc");
+				series1.tooltip.background.strokeWidth = 1;
+				series1.tooltip.background.fillOpacity = 1;
+				series1.tooltip.background.filters.clear();
+				series1.tooltip.label.padding(10,15,10,15);
+				
+				var label = series1.columns.template.createChild(am4core.Label);
+				label.text = "{텍스트}";
+				label.dx = 5;
+				label.align = "left";
+				label.valign = "middle";
+				label.strokeWidth = 0;
+				
+				function addRange(label, start) {
+					var range = categoryAxis.axisRanges.create();
+					range.category = start;
+					range.label.text = label;
+					range.label.disabled = false;
+					range.label.location = 0;
+					range.label.dx = -74;
+					range.label.dy = 11;
+					range.label.fontSize = 12;
+					range.label.horizontalCenter = "left"
+					range.label.inside = true;
+					
+					range.grid.stroke = am4core.color("#A6B9C2");
+					range.grid.strokeOpacity = 1;
+					
+					range.tick.length = 65;
+					range.tick.disabled = false;
+					range.tick.strokeOpacity = 1;
+					range.tick.stroke = am4core.color("#A6B9C2");
+					range.tick.location = 0;
+					
+					range.locations.category = 1;
+				}
+				
+				addRange("월화", "");
+				addRange("수목", "2 JTBC");
+				addRange("금토", "4 OCN");
+				addRange("토일", "6 JTBC");
+				addRange("", "7 OCN");
+				
+				chart.scrollbarX = new am4core.Scrollbar();
+				chart.scrollbarX.dy = -8;
+				chart.scrollbarX.startGrip.icon.disabled =true;
+				chart.scrollbarX.endGrip.icon.disabled =true;
+				chart.scrollbarX.background.stroke = am4core.color("#fff");
+				chart.scrollbarX.background.strokeWidth = 10;
+				chart.scrollbarX.thumb.background.stroke = am4core.color("#fff");
+				chart.scrollbarX.thumb.background.strokeWidth = 10;
+				// 2주 전 월요일부터 50주
+				chart.events.on("ready", function () {
+					var viewdatefrom = new Date(today);
+					viewdatefrom.setDate(today.getDate() - today.getDay() +1-14);
+					var viewdateto = new Date(today);
+					viewdateto.setDate(today.getDate() - today.getDay() +1+336);
+					dateAxis.zoomToDates(viewdatefrom, viewdateto);
+				});
+				
+				// 일별 차트에서 일요일 표시
+				<!-- dateAxis.renderer.labels.template.adapter.add("text", (label, target) => { -->
+				<!-- var date = new Date(target.dataItem.value); -->
+				<!-- if (date.getDay() == 0) { -->
+				<!-- return "[#c00]" + label; -->
+				<!-- } -->
+				<!-- else { -->
+				<!-- return label; -->
+				<!-- } -->
+				<!-- }); -->
+				
+			}
+			google.charts.load('current', {packages: ['table']});
+			google.charts.setOnLoadCallback(queryData2);
+			function queryData2() {
+				var queryString = encodeURIComponent("SELECT A, D, E, F, G WHERE N is null");
+				// 방송사, 제목, 감독, 작가, 배우
+				
+				var query = new google.visualization.Query(
+				"https://docs.google.com/spreadsheets/d/1FP6j_HaFuBDMUQGrI1qDKiVUi-x4A1-Q-U9OVSZdIRQ/gviz/tq?sheet=list&headers=1&tq=" + queryString);
+				query.send(drawTable);
+			}			
+			function drawTable(response) {
+				var data = response.getDataTable();
+				
+				var json = data.toJSON();
+				json = JSON.parse(json);
+				for (i in json.rows) {
+					if ( !json.rows[i].c[4].v ) {
+						data.setCell(parseInt(i), 1, undefined, undefined, {style: 'background-color: '+actor_notfixed});
+					}
+					else if (json.rows[i].c[4].v == 'x'){
+						data.setCell(parseInt(i), 1, undefined, undefined, {style: 'background-color: '+actor_unlikely});
+					}
+					else {
+						data.setCell(parseInt(i), 1, undefined, undefined, {style: 'background-color: '+actor_fixed});
+					}
+				}
+				
+				var cssClassNames = {headerRow:'darkborder', headerCell: 'td', tableCell:'td', selectedTableRow:'selected', hoverTableRow:'hover'};
+				var table = new google.visualization.Table(document.getElementById("table_div"));
+				table.draw(data, {allowHtml:true, width:560, alternatingRowStyle:false, cssClassNames:cssClassNames});
+			}
+		</script>
+	</head>
+	
+	<body>
+		
+		<div id="chartdiv"></div>
+		<div id="table_div"></div>
+	</body>
+</html>
