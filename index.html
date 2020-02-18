@@ -53,6 +53,7 @@
 			var actor_fixed = "#fff2cc";
 			var actor_unlikely = "#D9EAD3";
 			var actor_notfixed ="#cfe2f3";
+			var actor_osw ="#9fc5e8";
 			
 			am4core.ready(function() {
 				google.charts.load("current", {packages:["timeline"]});
@@ -105,10 +106,13 @@
 				}
 				
 				for (j in array) {
-					if (array[j]["상태"]=="확정") {
+					if (array[j]["배우"].includes=="옹성우") {
+						array[j].color = am4core.color(actor_osw);
+					}
+					else if (array[j]["상태"]=="확정") {
 						array[j].color = am4core.color(fixed);
 					}
-					else  if (array[j]["배우"]=="x") {
+					else if (array[j]["배우"]=="x") {
 						array[j].color = am4core.color(actor_unlikely);
 					}
 					else if (array[j]["배우"]) {
