@@ -106,7 +106,7 @@
 				}
 				
 				for (j in array) {
-					if (array[j]["배우"].includes("옹성우")) {
+					if (String(array[j]["배우"]).includes("옹성우")) {
 						array[j].color = am4core.color(actor_osw);
 					}
 					else if (array[j]["상태"]=="확정") {
@@ -271,7 +271,10 @@
 				var json = data.toJSON();
 				json = JSON.parse(json);
 				for (i in json.rows) {
-					if ( !json.rows[i].c[4].v ) {
+					if (String(json.rows[i].c[4].v).includes("옹성우") ) {
+						data.setCell(parseInt(i), 1, undefined, undefined, {style: 'background-color: '+actor_osw});
+					}
+					else if ( !json.rows[i].c[4].v ) {
 						data.setCell(parseInt(i), 1, undefined, undefined, {style: 'background-color: '+actor_notfixed});
 					}
 					else if (json.rows[i].c[4].v == 'x'){
