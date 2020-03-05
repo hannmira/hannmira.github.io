@@ -9,12 +9,12 @@
 			}
 			#chartdiv {
 			width: 100%;
-			height: 460px;
+			height: 436px;
 			}
 			#table_div {
 			margin-left:10px;
 			margin-top:10px;
-			height:680px;
+			height:720px;
 			}
 			.darkborder .td {
 			border-top:1px solid #A6B9C2;
@@ -83,7 +83,7 @@
 				
 				var j, k;
 				var array = [
-				{"요일 방송사":"2 KBS","방송사":"KBS"},{"요일 방송사":"2 MBC","방송사":"MBC"},{"요일 방송사":"2 SBS","방송사":"SBS"},{"요일 방송사":"2 tvN","방송사":"tvN"},{"요일 방송사":"2 JTBC","방송사":"JTBC"},{"요일 방송사":"2 OCN","방송사":"OCN"},
+				{"요일 방송사":"2 KBS","방송사":"KBS"},{"요일 방송사":"2 MBC","방송사":"MBC"},{"요일 방송사":"2 SBS","방송사":"SBS"},{"요일 방송사":"2 tvN","방송사":"tvN"},{"요일 방송사":"2 JTBC","방송사":"JTBC"},//{"요일 방송사":"2 OCN","방송사":"OCN"},
 				{"요일 방송사":"4 KBS","방송사":"KBS"},{"요일 방송사":"4 MBC","방송사":"MBC"},{"요일 방송사":"4 SBS","방송사":"SBS"},{"요일 방송사":"4 tvN","방송사":"tvN"},{"요일 방송사":"4 JTBC","방송사":"JTBC"},
 				{"요일 방송사":"6 KBS","방송사":"KBS"},{"요일 방송사":"6 SBS","방송사":"SBS"},{"요일 방송사":"6 JTBC","방송사":"JTBC"},
 				{"요일 방송사":"7 tvN","방송사":"tvN"},{"요일 방송사":"7 OCN","방송사":"OCN"}
@@ -221,7 +221,7 @@
 				}
 				
 				addRange("월화", "");
-				addRange("수목", "2 OCN");
+				addRange("수목", "2 JTBC");
 				addRange("금토", "4 JTBC");
 				addRange("토일", "6 JTBC");
 				addRange("", "7 OCN");
@@ -287,7 +287,7 @@
 				
 				var cssClassNames = {headerRow:'darkborder', headerCell: 'td', tableCell:'td', selectedTableRow:'selected', hoverTableRow:'hover'};
 				var table = new google.visualization.Table(document.getElementById("table_div"));
-				table.draw(data, {allowHtml:true, width:560, alternatingRowStyle:false, cssClassNames:cssClassNames});
+				table.draw(data, {allowHtml:true, width:600, alternatingRowStyle:false, cssClassNames:cssClassNames});
 			}
 		</script>
 	</head>
