@@ -260,7 +260,7 @@
 			google.charts.load('current', {packages: ['table']});
 			google.charts.setOnLoadCallback(queryData2);
 			function queryData2() {
-				var queryString = encodeURIComponent("SELECT A, D, E, F, G WHERE  is null");
+				var queryString = encodeURIComponent("SELECT A, D, E, F, G WHERE P is null");
 				// 방송사, 제목, 감독, 작가, 배우
 				
 				var query = new google.visualization.Query(
